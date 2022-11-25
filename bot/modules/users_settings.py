@@ -73,13 +73,13 @@ def get_user_settings(from_user):
         imdbval = "Exists"
         buttons.sbutton("Change/Delete IMDB", f"userset {user_id} suniversal imdb_temp")
         buttons.sbutton("Show IMDB Template", f"userset {user_id} showimdb")
-    else: buttons.sbutton("Set IMDB", f"userset {user_id} suniversal imdb")
+    else: buttons.sbutton("Set IMDB", f"userset {user_id} suniversal imdb_temp")
     if anilist != "Not Exists":
         anival = "Exists"
         buttons.sbutton("Change/Delete AniList", f"userset {user_id} suniversal ani_temp")
         buttons.sbutton("Show AniList Template", f"userset {user_id} showanilist")
     else:
-        buttons.sbutton("Set AniList", f"userset {user_id} suniversal anilist")
+        buttons.sbutton("Set AniList", f"userset {user_id} suniversal ani_temp")
     if cfont != "Not Exists": buttons.sbutton("Delete CapFont", f"userset {user_id} cfont")
     buttons.sbutton("Close", f"userset {user_id} close")
     button = buttons.build_menu(2)
