@@ -403,7 +403,7 @@ ANILIST_ENABLED = environ.get('ANILIST_ENABLED', '')
 ANILIST_ENABLED = ANILIST_ENABLED.lower() == 'true'
 
 IMDB_ENABLED = environ.get('IMDB_ENABLED', '')
-IMDB_ENABLED = ANILIST_ENABLED.lower() == 'true'
+IMDB_ENABLED = IMDB_ENABLED.lower() == 'true'
 
 WAYBACK_ENABLED = environ.get('WAYBACK_ENABLED', '')
 WAYBACK_ENABLED = WAYBACK_ENABLED.lower() == 'true'
