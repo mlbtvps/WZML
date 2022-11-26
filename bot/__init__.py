@@ -221,7 +221,9 @@ if len(DEF_IMDB_TEMP) == 0:
 <b>IMDb URL:</b> {url}
 <b>Language: </b>{languages}
 <b>Country of Origin : </b> {countries}
+
 <b>Story Line: </b><code>{plot}</code>
+
 <a href="{url_cast}">Read More ...</a>'''
 
 LOGGER.info("Generating SESSION_STRING")
