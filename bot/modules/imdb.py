@@ -120,15 +120,13 @@ def get_poster(query, bulk=False, id=False, file=None):
         'url_releaseinfo':f'https://www.imdb.com/title/tt{movieid}/releaseinfo',
     }
 
-
-'''
 def list_to_str(k):
     if not k:
         return ""
     elif len(k) == 1:
         return str(k[0])
-    elif MAX_LIST_ELM:
-        k = k[:int(MAX_LIST_ELM)]
+    elif LIST_ITEMS:
+        k = k[:int(LIST_ITEMS)]
         return ' '.join(f'{elem},' for elem in k)[:-1]+' ...'
     else:
         return ' '.join(f'{elem},' for elem in k)[:-1]
@@ -145,8 +143,8 @@ def list_to_hash(k, flagg=False):
             return str(f"{conflag} #" + k[0].replace(" ", "_").replace("-", "_"))
         except AttributeError:
             return str("#"+k[0].replace(" ", "_").replace("-", "_"))
-    elif MAX_LIST_ELM:
-        k = k[:int(MAX_LIST_ELM)]
+    elif LIST_ITEMS:
+        k = k[:int(LIST_ITEMS)]
         for elem in k:
             ele = elem.replace(" ", "_").replace("-", "_")
             if flagg:
@@ -166,6 +164,7 @@ def list_to_hash(k, flagg=False):
             listing += f'#{ele}, '
         return listing[:-2]
 
+'''
 async def imdb_callback(bot, quer_y: CallbackQuery):
     splitData = quer_y.data.split('#')
     movie, from_user = splitData[1], splitData[2]
@@ -227,7 +226,7 @@ async def imdb_callback(bot, quer_y: CallbackQuery):
     await quer_y.answer()
 '''
 
-imdbfilters = CustomFilters.authorized_chat if ANILIST_ENABLED else CustomFilters.owner_filter
+imdbfilters = CustomFilters.authorized_chat if IMDB_ENABLED else CustomFilters.owner_filter
 IMDB_HANDLER = CommandHandler("imdb", imdb_search,
                               filters=imdbfilters | CustomFilters.authorized_user, run_async=True)
 
