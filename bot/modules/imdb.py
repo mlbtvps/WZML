@@ -214,7 +214,7 @@ def imdb_callback(update, context):
             )
         else:
             cap = "No Results"
-        deleteMessage(context.bot, message)
+        deleteMessage(context.bot, update.message)
         if imdb.get('poster'):
             try:
                 sendPhoto(cap, context.bot, update.message, imdb['poster'], buttons.build_menu(1))
