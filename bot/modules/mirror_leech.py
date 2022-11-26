@@ -35,7 +35,7 @@ def _mirror_leech(bot, message, isZip=False, extract=False, isQbit=False, isLeec
     if config_dict['FSUB']:
         try:
             user = bot.get_chat_member(f"{config_dict['FSUB_CHANNEL_ID']}", message.from_user.id)
-            LOGGER.info(user.status)
+            LOGGER.info(f"User Status : {str(user.status).capitalize()}")
             if user.status not in ("member", "creator", "administrator", "supergroup"):
                 if message.from_user.username:
                     uname = f'<a href="tg://user?id={message.from_user.id}">{message.from_user.username}</a>'
@@ -258,22 +258,6 @@ def _mirror_leech(bot, message, isZip=False, extract=False, isQbit=False, isLeec
         else:
             msg = "Qb commands for torrents only. if you are trying to dowload torrent then report."
             return sendMessage(msg, bot, message)
-
-
-    # if not is_mega_link(link) and not isQbit and not is_magnet(link) \
-    #     and not is_gdrive_link(link) and not link.endswith('.torrent'):
-    #     content_type = get_content_type(link)
-    #     if content_type is None or re_match(r'text/html|text/plain', content_type):
-    #         try:
-    #             is_gdtot = is_gdtot_link(link)
-    #             is_unified = is_unified_link(link)
-    #             is_udrive = is_udrive_link(link)
-    #             link = direct_link_generator(link)
-    #             LOGGER.info(f"Generated link: {link}")
-    #         except DirectDownloadLinkException as e:
-    #             LOGGER.info(str(e))
-    #             if str(e).startswith('ERROR:'):
-    #                 return sendMessage(str(e), bot, message)
 
     listener = MirrorLeechListener(bot, message, isZip, extract, isQbit, isLeech, pswd, tag, select, seed)
 
