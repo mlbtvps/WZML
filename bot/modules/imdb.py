@@ -173,7 +173,6 @@ def imdb_callback(update, context):
         if imdb.get('videos'):
             buttons.sbutton("⚡ Trailer ⚡", imdb['videos'][-1])
         buttons.sbutton("🚫 Close 🚫", f"imdb {user_id} close")
-        message = message.reply_to_message or message
         template = ''
         if int(data[1]) in user_data and user_data[int(data[1])].get('imdb_temp'):
             template = user_data[int(data[1])].get('imdb_temp')
@@ -214,18 +213,19 @@ def imdb_callback(update, context):
             )
         else:
             cap = "No Results"
-        query.message.delete()
+        query.answer()
+        message.delete()
         if imdb.get('poster'):
             try:
-                sendPhoto(cap, context.bot, query.message, imdb['poster'], buttons.build_menu(1))
+                sendPhoto(cap, context.bot, query.message.reply_to_message, imdb['poster'], buttons.build_menu(1))
             except TelegramError:
                 poster = imdb.get('poster').replace('.jpg', "._V1_UX360.jpg")
-                sendPhoto(cap, context.bot, query.message, poster, buttons.build_menu(1))
+                sendPhoto(cap, context.bot, query.message.reply_to_message, poster, buttons.build_menu(1))
             except Exception as e:
                 LOGGER.exception(e)
-                sendMarkup(cap, context.bot, query.message, buttons.build_menu(1))
+                sendMarkup(cap, context.bot, query.message.reply_to_message, buttons.build_menu(1))
         else:
-            sendPhoto(cap, context.bot, update.message, 'https://telegra.ph/file/5af8d90a479b0d11df298.jpg', buttons.build_menu(1))
+            sendPhoto(cap, context.bot, query.message.reply_to_message, 'https://telegra.ph/file/5af8d90a479b0d11df298.jpg', buttons.build_menu(1))
     else:
         query.answer()
         query.message.delete()
