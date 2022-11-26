@@ -115,17 +115,24 @@ def rmleechlog(update, context):
     sendMessage(msg, context.bot, update.message)
 
 def addPaid(update, context):
-    id_ = ""
+    id_, ex_date = "", ""
     reply_message = update.message.reply_to_message
-    if len(context.args) == 1:
+    if len(context.args) == 2:
         id_ = int(context.args[0])
+        ex_date = context.args[1]
+    elif len(context.args) == 1 and reply_message:
+        ex_date = context.args[0]
+        id_ = reply_message.from_user.id
     elif reply_message:
         id_ = reply_message.from_user.id
+    elif len(context.args) == 1:
+        id_ = int(context.args[0])
     if id_:
         if is_paid(id_):
             msg = 'Already a Paid User!'
         else:
             update_user_ldata(id_, 'is_paid', True)
+            update_user_ldata(id_, 'expiry_date', ex_date)
             if DATABASE_URL:
                 DbManger().update_user_data(id_)
             msg = 'Promoted as Paid User'
@@ -142,6 +149,7 @@ def removePaid(update, context):
         id_ = reply_message.from_user.id
     if id_ and is_paid(id_):
         update_user_ldata(id_, 'is_paid', False)
+        update_user_ldata(id_, 'expiry_date', False)
         if DATABASE_URL:
             DbManger().update_user_data(id_)
         msg = 'Demoted'
