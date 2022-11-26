@@ -432,31 +432,24 @@ def krakenfiles(page_link: str) -> str:
 
 
 def gdtot(url: str) -> str:
-    if config_dict['GDTOT_CRYPT'] is None:
-        raise DirectDownloadLinkException("GDTOT_CRYPT env var not provided")
-    client = requests.Session()
-    client.cookies.update({"crypt": config_dict['GDTOT_CRYPT']})
-    res = client.get(url)
-    base_url = re.match('^.+?[^\/:](?=[?\/]|$\n)', url).group(0)
-    res = client.get(f"{base_url}/dld?id={url.split('/')[-1]}")
-    url = re.findall(r'URL=(.*?)"', res.text)[0]
-    info = {}
-    info["error"] = False
-    params = parse_qs(urlparse(url).query)
-    if "gd" not in params or not params["gd"] or params["gd"][0] == "false":
-        info["error"] = True
-        if "msgx" in params:
-            info["message"] = params["msgx"][0]
-        else:
-            info["message"] = "Invalid link"
-    else:
-        decoded_id = base64.b64decode(str(params["gd"][0])).decode("utf-8")
-        drive_link = f"https://drive.google.com/open?id={decoded_id}"
-        info["gdrive_link"] = drive_link
-    if not info["error"]:
-        return info["gdrive_link"]
-    else:
-        raise DirectDownloadLinkException(f"{info['message']}")
+    """ Gdtot google drive link generator
+    By https://github.com/xcscxr """
+
+    if not config_dict['GDTOT_CRYPT']:
+        raise DirectDownloadLinkException("ERROR: CRYPT cookie not provided")
+
+    match = re.findall(r'https?://(.+)\.gdtot\.(.+)\/\S+\/\S+', url)[0]
+
+    with rsession() as client:
+        client.cookies.update({'crypt': config_dict['GDTOT_CRYPT']})
+        client.get(url)
+        res = client.get(f"https://{match[0]}.gdtot.{match[1]}/dld?id={url.split('/')[-1]}")
+    matches = re.findall('gd=(.*?)&', res.text)
+    try:
+        decoded_id = b64decode(str(matches[0])).decode('utf-8')
+    except:
+        raise DirectDownloadLinkException("ERROR: Try in your broswer, mostly file not found or user limit exceeded!")
+    return f'https://drive.google.com/open?id={decoded_id}'
 
 
 account = {"email": config_dict['UNIFIED_EMAIL'], "passwd": config_dict['UNIFIED_PASS']}
