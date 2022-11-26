@@ -170,7 +170,9 @@ def imdb_callback(update, context):
         query.answer()
         imdb = get_poster(query=data[3], id=True)
         buttons = ButtonMaker()
-        buttons.sbutton("⚡ Trailer ⚡", imdb['videos'][-1])
+        if imdb.get('videos'):
+            buttons.sbutton("⚡ Trailer ⚡", imdb['videos'][-1])
+        buttons.sbutton("🚫 Close 🚫", f"imdb {user_id} close")
         message = message.reply_to_message or message
         if int(data[1]) in user_data and user_data[int(data[1])].get('imdb_temp'):
             template = user_data[int(data[1])].get('imdb_temp')
