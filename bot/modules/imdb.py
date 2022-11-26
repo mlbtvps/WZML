@@ -32,7 +32,7 @@ def imdb_search(update: Update, context: CallbackContext):
                 return editMessage("<i>No Results Found</i>", k)
             for movie in movies:
                 buttons.sbutton(f"🎬 {movie.get('title')} ({movie.get('year')})", f"imdb {user_id} movie {movie.movieID}")
-        buttons.sbutton("🚫 Close 🚫", "imdb {user_id} close")
+        buttons.sbutton("🚫 Close 🚫", f"imdb {user_id} close")
         editMessage('<b><i>Here What I found on IMDb.com</i></b>', k, buttons.build_menu(1))
     else:
         sendMessage('<i>Send Movie / TV Series Name along with /imdb Command</i>', context.bot, update.message)
