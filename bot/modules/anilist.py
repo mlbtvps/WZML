@@ -300,7 +300,8 @@ def anilist(update: Update, context: CallbackContext, aniid=None, u_id=None):
         aniListTemp = ''
         if user_id in user_data:
             aniListTemp = user_data[user_id].get('ani_temp', "")
-        if not aniListTemp:
+        LOGGER.info(aniListTemp)
+        if aniListTemp == '':
             aniListTemp = DEF_ANI_TEMP
         try:
             template = aniListTemp.format(**locals()).replace('<br>', '')
