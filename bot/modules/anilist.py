@@ -235,7 +235,7 @@ def anilist(update: Update, context: CallbackContext, aniid=None, u_id=None):
             return
         vars = {'search' : squery[1]}
     else:
-        user_id = u_id
+        user_id = int(u_id)
         vars = {'id' : aniid}
     animeResp = rpost(url, json={'query': ANIME_GRAPHQL_QUERY, 'variables': vars}).json()['data'].get('Media', None)
     if animeResp:
@@ -300,7 +300,6 @@ def anilist(update: Update, context: CallbackContext, aniid=None, u_id=None):
         aniListTemp = ''
         if user_id in user_data:
             aniListTemp = user_data[user_id].get('ani_temp', '')
-        LOGGER.info(aniListTemp)
         if not aniListTemp:
             aniListTemp = DEF_ANI_TEMP
         try:
