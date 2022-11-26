@@ -101,7 +101,7 @@ def get_user_settings(from_user):
 '''
     if uplan == "Paid User":
         ex_date = user_dict.get('expiry_date', "Not Specified")
-        text += "• Expiry Date : <b>{ex_date}</b>"
+        text += f"• Expiry Date : <b>{ex_date}</b>"
     return text, button
 
 def update_user_settings(message, from_user):
