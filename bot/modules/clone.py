@@ -1,5 +1,4 @@
-import random
-from random import choice
+from random import choice as rchoice
 from random import SystemRandom
 from re import T
 from string import ascii_letters, digits
@@ -181,7 +180,7 @@ def _clone(message, bot):
                     return
 
         config_dict['CLONE_LIMIT']
-        if CLONE_LIMIT != '' and user_id != OWNER_ID and user_id in user_data and user_data[user_id].get('is_sudo') and user_data[user_id].get('is_paid'):
+        if CLONE_LIMIT != '' and user_id != OWNER_ID and not is_sudo(user_id) and not is_paid(user_id):
             LOGGER.info('Checking File/Folder Size...')
             if size > CLONE_LIMIT * 1024**3:
                 msg2 = f'Failed, Clone limit is {CLONE_LIMIT}GB.\nYour File/Folder size is {get_readable_file_size(size)}.'
@@ -211,7 +210,7 @@ def _clone(message, bot):
                     botstart = f"http://t.me/{b_uname}"
                     buttons.buildbutton("View links in PM", f"{botstart}")
                     if PICS:
-                        sendPhoto(msg + botpm, bot, message, random.choice(PICS), buttons.build_menu(2))
+                        sendPhoto(msg + botpm, bot, message, rchoice(PICS), buttons.build_menu(2))
                     else:
                         sendMarkup(msg + botpm, bot, message, buttons.build_menu(2))
                 else:
@@ -220,7 +219,7 @@ def _clone(message, bot):
                     else:
                         cc = f'\n<b>╰ #Clone_By: </b>{tag}\n\n'
                     if PICS:
-                        sendPhoto(result + cc, bot, message, random.choice(PICS), button)
+                        sendPhoto(result + cc, bot, message, rchoice(PICS), button)
                     else:
                         sendMarkup(result + cc, bot, message, button)
                 message.delete()
@@ -255,7 +254,7 @@ def _clone(message, bot):
                             botstart = f"http://t.me/{b_uname}"
                             buttons.buildbutton("View links in PM", f"{botstart}")
                             if PICS:
-                                sendPhoto(msg + botpm, bot, message, random.choice(PICS), buttons.build_menu(2))
+                                sendPhoto(msg + botpm, bot, message, rchoice(PICS), buttons.build_menu(2))
                             else:
                                 sendMarkup(msg + botpm, bot, message, buttons.build_menu(2))
                         else:
@@ -264,7 +263,7 @@ def _clone(message, bot):
                             else:
                                 cc = f'\n<b>╰ #Clone_By: </b>{tag}\n\n'
                             if PICS:
-                                sendPhoto(result + cc, bot, message, random.choice(PICS), button)
+                                sendPhoto(result + cc, bot, message, rchoice(PICS), button)
                             else:
                                 sendMarkup(result + cc, bot, message, button)       
                         message.delete()
@@ -320,7 +319,7 @@ def _clone(message, bot):
             LOGGER.info(f'Cloning Done: {name}')
         if not config_dict['FORCE_BOT_PM']:
             if PICS:
-                msg = sendPhoto(result + cc + pmwarn + logwarn + warnmsg, bot, message, random.choice(PICS), button)
+                msg = sendPhoto(result + cc + pmwarn + logwarn + warnmsg, bot, message, rchoice(PICS), button)
             else:
                 msg = sendMarkup(result + cc + pmwarn + logwarn + warnmsg, bot, message, button)
             Thread(target=auto_delete_upload_message, args=(bot, message, msg)).start()
