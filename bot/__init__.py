@@ -206,6 +206,24 @@ if len(DEF_ANI_TEMP) == 0:
 
 <b>Description</b>: <i>{description}</i>"""
 
+LIST_ITEMS  = environ.get('LIST_ITEMS', '')
+if len(LIST_ITEMS) == 0:
+    LIST_ITEMS = 4
+else: LIST_ITEMS = int(LIST_ITEMS)
+
+DEF_IMDB_TEMP  = environ.get('IMDB_TEMPLATE', '')
+if len(DEF_IMDB_TEMP) == 0:
+    DEF_IMDB_TEMP = '''<b>Title: </b> {title} [{year}]
+<b>Also Known As:</b> {aka}
+<b>Rating ⭐️:</b> <i>{rating}</i>
+<b>Release Info: </b> <a href="{url_releaseinfo}">{release_date}</a>
+<b>Genre: </b>{genres}
+<b>IMDb URL:</b> {url}
+<b>Language: </b>{languages}
+<b>Country of Origin : </b> {countries}
+<b>Story Line: </b><code>{plot}</code>
+<a href="{url_cast}">Read More ...</a>'''
+
 LOGGER.info("Generating SESSION_STRING")
 app = Client(name='pyrogram', api_id=(TELEGRAM_API), api_hash=TELEGRAM_HASH, bot_token=BOT_TOKEN, parse_mode=enums.ParseMode.HTML, no_updates=True)
 
@@ -383,6 +401,9 @@ CLONE_ENABLED = CLONE_ENABLED.lower() == 'true'
 
 ANILIST_ENABLED = environ.get('ANILIST_ENABLED', '')
 ANILIST_ENABLED = ANILIST_ENABLED.lower() == 'true'
+
+IMDB_ENABLED = environ.get('IMDB_ENABLED', '')
+IMDB_ENABLED = ANILIST_ENABLED.lower() == 'true'
 
 WAYBACK_ENABLED = environ.get('WAYBACK_ENABLED', '')
 WAYBACK_ENABLED = WAYBACK_ENABLED.lower() == 'true'
