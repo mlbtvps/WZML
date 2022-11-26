@@ -85,6 +85,7 @@ def get_poster(query, bulk=False, id=False, file=None):
         plot = f"{plot[:800]}..."
     return {
         'title': movie.get('title'),
+        'trailer': movie.get('videos')[-1],
         'votes': movie.get('votes'),
         "aka": list_to_str(movie.get("akas")),
         "seasons": movie.get("number of seasons"),
@@ -170,8 +171,7 @@ def imdb_callback(update, context):
         query.answer()
         imdb = get_poster(query=data[3], id=True)
         buttons = ButtonMaker()
-        if imdb.get('videos'):
-            buttons.sbutton("⚡ Trailer ⚡", imdb['videos'][-1])
+        buttons.sbutton("🎦 Trailer 🎦", imdb['trailer'])
         buttons.sbutton("🚫 Close 🚫", f"imdb {user_id} close")
         template = ''
         if int(data[1]) in user_data and user_data[int(data[1])].get('imdb_temp'):
@@ -181,6 +181,7 @@ def imdb_callback(update, context):
         if imdb and template != "":
             cap = template.format(
             title = imdb['title'],
+            trailer = imdb['trailer'],
             votes = imdb['votes'],
             aka = imdb["aka"],
             seasons = imdb["seasons"],
@@ -213,7 +214,6 @@ def imdb_callback(update, context):
             )
         else:
             cap = "No Results"
-        query.answer()
         message.delete()
         if imdb.get('poster'):
             try:
