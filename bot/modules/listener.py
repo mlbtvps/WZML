@@ -49,7 +49,7 @@ class MirrorLeechListener:
         self.isPrivate = message.chat.type in ['private', 'group']
         self.suproc = None
         self.user_id = self.message.from_user.id	
-        reply_to = self.message.reply_to_message
+        self.reply_to = self.message.reply_to_message
 
     def clean(self):
         try:
@@ -627,8 +627,8 @@ class MirrorLeechListener:
     def onDownloadError(self, error):
         error = error.replace('<', ' ').replace('>', ' ')
         try:
-            if config_dict['AUTO_DELETE_UPLOAD_MESSAGE_DURATION'] != -1 and reply_to is not None:
-                reply_to.delete()
+            if config_dict['AUTO_DELETE_UPLOAD_MESSAGE_DURATION'] != -1 and self.reply_to is not None:
+                self.reply_to.delete()
             else:
                 pass
         except Exception as e:
