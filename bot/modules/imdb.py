@@ -171,7 +171,7 @@ def imdb_callback(update, context):
         query.answer()
         imdb = get_poster(query=data[3], id=True)
         buttons = ButtonMaker()
-        buttons.buildbutton("🎦 Trailer 🎦", imdb['trailer'])
+        buttons.buildbutton("▶️ IMDb Trailer ", imdb['trailer'])
         buttons.sbutton("🚫 Close 🚫", f"imdb {user_id} close")
         template = ''
         if int(data[1]) in user_data and user_data[int(data[1])].get('imdb_temp'):
@@ -214,7 +214,6 @@ def imdb_callback(update, context):
             )
         else:
             cap = "No Results"
-        message.delete()
         if imdb.get('poster'):
             try:
                 sendPhoto(cap, context.bot, query.message.reply_to_message, imdb['poster'], buttons.build_menu(1))
@@ -226,6 +225,7 @@ def imdb_callback(update, context):
                 #sendMarkup(cap, context.bot, query.message.reply_to_message, buttons.build_menu(1))
         else:
             sendPhoto(cap, context.bot, query.message.reply_to_message, 'https://telegra.ph/file/5af8d90a479b0d11df298.jpg', buttons.build_menu(1))
+        message.delete()
     else:
         query.answer()
         query.message.delete()
