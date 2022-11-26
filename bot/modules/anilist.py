@@ -299,14 +299,14 @@ def anilist(update: Update, context: CallbackContext, aniid=None, u_id=None):
             buttons[0].insert(1, InlineKeyboardButton("Trailer 🎞", url=trailer))
         aniListTemp = ''
         if user_id in user_data:
-            aniListTemp = user_data[user_id].get('ani_temp', "")
+            aniListTemp = user_data[user_id].get('ani_temp', '')
         LOGGER.info(aniListTemp)
-        if aniListTemp == '':
+        if not aniListTemp:
             aniListTemp = DEF_ANI_TEMP
         try:
             template = aniListTemp.format(**locals()).replace('<br>', '')
         except Exception as e:
-            template = ""
+            template = DEF_ANI_TEMP
             LOGGER.error(f"AniList Error: {e}")
         if aniid:
             return template, buttons
