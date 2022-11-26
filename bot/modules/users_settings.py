@@ -13,7 +13,7 @@ from bot.helper.telegram_helper.filters import CustomFilters
 from bot.helper.telegram_helper.bot_commands import BotCommands
 from bot.helper.telegram_helper.button_build import ButtonMaker
 from bot.helper.ext_utils.db_handler import DbManger
-from bot.helper.ext_utils.bot_utils import update_user_ldata
+from bot.helper.ext_utils.bot_utils import update_user_ldata, is_paid
 
 handler_dict = {}
 example_dict = {'prefix':'1. <code>@your_channel_username or Anything</code>', 'suffix':'', 'caption':'', 'userlog':'', 'remname':'', 'imdb_temp':'', 'ani_temp':''}
@@ -49,7 +49,7 @@ def get_user_settings(from_user):
         buttons.sbutton("Set YT-DLP Quality", f"userset {user_id} ytq")
         ytq = 'Not Exists'
 
-    uplan = "Paid User" if user_id in user_data and (user_data[user_id].get('is_paid')) else "Normal User"
+    uplan = "Paid User" if is_paid(user_id) else "Normal User"
 
     if ospath.exists(thumbpath):
         thumbmsg = "Exists"
@@ -97,7 +97,11 @@ def get_user_settings(from_user):
 • UserLog : <b>{userlog}</b>
 • IMDB : <b>{imdbval if imdbval else imdb}</b>
 • AniList : <b>{anival if anival else anilist}</b>
-• User Plan : <b>{uplan}</b>'''
+• User Plan : <b>{uplan}</b>
+'''
+    if uplan == "Paid User":
+        ex_date = user_dict.get('expiry_date', "Not Specified")
+        text += "• Expiry Date : <b>{ex_date}</b>"
     return text, button
 
 def update_user_settings(message, from_user):
