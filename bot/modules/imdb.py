@@ -2,17 +2,15 @@ from re import findall, IGNORECASE
 from imdb import IMDb
 from pycountry import countries as conn
 
-from telegram import Update, InlineKeyboardMarkup, InlineKeyboardButton, ParseMode
+from telegram import Update, ParseMode
 from telegram.ext import run_async, CallbackContext, CommandHandler, CallbackQueryHandler
+from telegram.error import TelegramError
+
 from bot.helper.telegram_helper.filters import CustomFilters
-from bot.helper.telegram_helper.message_utils import sendMessage, sendMarkup, editMessage, sendPhoto
+from bot.helper.telegram_helper.message_utils import sendMessage, sendMarkup, editMessage, sendPhoto, deleteMessage
 from bot.helper.ext_utils.bot_utils import get_readable_time
 from bot.helper.telegram_helper.button_build import ButtonMaker
 from bot import LOGGER, dispatcher, IMDB_ENABLED, DEF_IMDB_TEMP, config_dict, user_data, LIST_ITEMS
-
-#from pyrogram import filters, enums
-#from pyrogram.types import InlineKeyboardButton, InlineKeyboardMarkup, CallbackQuery 
-#from pyrogram.errors.exceptions.bad_request_400 import MediaEmpty, PhotoInvalidDimensions, WebpageMediaEmpty
 
 imdb = IMDb() 
 
@@ -27,14 +25,14 @@ def imdb_search(update: Update, context: CallbackContext):
             movie = imdb.get_movie(movieid)
             if not movie:
                 return editMessage("<i>No Results Found</i>", k)
-            buttons.sbutton(f"📺 {movie.get('title')} ({movie.get('year')}) - tt{movieid}", f"imdb {movieid} {user_id}")
+            buttons.sbutton(f"🎬 {movie.get('title')} ({movie.get('year')})", f"imdb {user_id} movie {movieid}")
         else:
             movies = get_poster(title, bulk=True)
             if not movies:
                 return editMessage("<i>No Results Found</i>", k)
             for movie in movies:
-                buttons.sbutton(f"📺 {movie.get('title')} ({movie.get('year')})", f"imdb {movie.movieID} {user_id}")
-        buttons.sbutton("🚫 Close 🚫", "imdb close")
+                buttons.sbutton(f"🎬 {movie.get('title')} ({movie.get('year')})", f"imdb {user_id} movie {movie.movieID}")
+        buttons.sbutton("🚫 Close 🚫", "imdb {user_id} close")
         editMessage('<b><i>Here What I found on IMDb.com</i></b>', k, buttons.build_menu(1))
     else:
         sendMessage('<i>Send Movie / TV Series Name along with /imdb Command</i>', context.bot, update.message)
@@ -78,12 +76,9 @@ def get_poster(query, bulk=False, id=False, file=None):
         date = movie.get("year")
     else:
         date = "N/A"
-    LONG_IMDB_DESCRIPTION = False
-    plot = ""
-    if not LONG_IMDB_DESCRIPTION:
-        plot = movie.get('plot')
-        if plot and len(plot) > 0:
-            plot = plot[0]
+    plot = movie.get('plot')
+    if plot and len(plot) > 0:
+        plot = plot[0]
     else:
         plot = movie.get('plot outline')
     if plot and len(plot) > 800:
@@ -98,7 +93,7 @@ def get_poster(query, bulk=False, id=False, file=None):
         'kind': movie.get("kind"),
         "imdb_id": f"tt{movie.get('imdbID')}",
         "cast": list_to_str(movie.get("cast")),
-        "runtime": list_to_str([TimeFormatter(int(run) * 60 * 1000) for run in movie.get("runtimes", "0")]),
+        "runtime": list_to_str([get_readable_time(int(run) * 60) for run in movie.get("runtimes", "0")]),
         "countries": list_to_hash(movie.get("countries"), True),
         "certificates": list_to_str(movie.get("certificates")),
         "languages": list_to_hash(movie.get("languages")),
@@ -164,19 +159,25 @@ def list_to_hash(k, flagg=False):
             listing += f'#{ele}, '
         return listing[:-2]
 
-'''
-async def imdb_callback(bot, quer_y: CallbackQuery):
-    splitData = quer_y.data.split('#')
-    movie, from_user = splitData[1], splitData[2]
-    imdb = await get_poster(query=movie, id=True)
-    btn = [[InlineKeyboardButton(text="⚡ 𝘊𝘭𝘪𝘤𝘬 𝘏𝘦𝘳𝘦 ⚡", url=imdb['url'])]]
-    message = quer_y.message.reply_to_message or quer_y.message
-    template = IMDB_TEMPLATE.get(int(from_user), "")
-    if not template:
-        template = DEF_IMDB_TEMPLATE
-    if imdb and template != "":
-        caption = template.format(
-            query = imdb['title'],
+def imdb_callback(update, context):
+    query = update.callback_query
+    message = query.message
+    user_id = query.from_user.id
+    data = query.data.split()
+    if user_id != int(data[1]):
+        query.answer(text="Not Yours!", show_alert=True)
+    elif data[2] == "movie":
+        query.answer()
+        imdb = get_poster(query=data[3], id=True)
+        buttons = ButtonMaker()
+        buttons.sbutton("⚡ Trailer ⚡", imdb['videos'][-1])
+        message = message.reply_to_message or message
+        if int(data[1]) in user_data and user_data[int(data[1])].get('imdb_temp'):
+            template = user_data[int(data[1])].get('imdb_temp')
+        if not template:
+            template = DEF_IMDB_TEMP
+        if imdb and template != "":
+            cap = template.format(
             title = imdb['title'],
             votes = imdb['votes'],
             aka = imdb["aka"],
@@ -207,27 +208,31 @@ async def imdb_callback(bot, quer_y: CallbackQuery):
             url_cast = imdb['url_cast'],
             url_releaseinfo = imdb['url_releaseinfo'],
             **locals()
-        )
+            )
+        else:
+            cap = "No Results"
+        deleteMessage(context.bot, message)
+        if imdb.get('poster'):
+            try:
+                sendPhoto(cap, context.bot, update.message, imdb['poster'], buttons.build_menu(1))
+            except TelegramError:
+                poster = imdb.get('poster').replace('.jpg', "._V1_UX360.jpg")
+                sendPhoto(cap, context.bot, update.message, poster, buttons.build_menu(1))
+            except Exception as e:
+                LOGGER.exception(e)
+                sendMarkup(cap, context.bot, update.message, buttons.build_menu(1))
+        else:
+            sendPhoto(cap, context.bot, update.message, 'https://telegra.ph/file/5af8d90a479b0d11df298.jpg', buttons.build_menu(1))
     else:
-        caption = "No Results"
-    if imdb.get('poster'):
-        try:
-            await quer_y.message.reply_photo(photo=imdb['poster'], caption=caption, reply_markup=InlineKeyboardMarkup(btn))
-        except (MediaEmpty, PhotoInvalidDimensions, WebpageMediaEmpty):
-            pic = imdb.get('poster')
-            poster = pic.replace('.jpg', "._V1_UX360.jpg")
-            await quer_y.message.reply_photo(photo=poster, caption=caption, reply_markup=InlineKeyboardMarkup(btn))
-        except Exception as e:
-            LOGGER.exception(e)
-            await quer_y.message.reply(caption, reply_markup=InlineKeyboardMarkup(btn), disable_web_page_preview=False)
-        await quer_y.message.delete()
-    else:
-        await quer_y.message.edit(caption, reply_markup=InlineKeyboardMarkup(btn), disable_web_page_preview=False)
-    await quer_y.answer()
-'''
+        query.answer()
+        query.message.delete()
+        query.message.reply_to_message.delete()
+
 
 imdbfilters = CustomFilters.authorized_chat if IMDB_ENABLED else CustomFilters.owner_filter
 IMDB_HANDLER = CommandHandler("imdb", imdb_search,
                               filters=imdbfilters | CustomFilters.authorized_user, run_async=True)
+imdbCall_handler = CallbackQueryHandler(imdb_callback, pattern="imdb", run_async=True)
 
 dispatcher.add_handler(IMDB_HANDLER)
+dispatcher.add_handler(imdbCall_handler)
