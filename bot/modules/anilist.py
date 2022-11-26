@@ -354,7 +354,7 @@ def setAnimeButtons(update, context):
     elif data[2] == "home":
         msg, btns = anilist(update, context.bot, siteid, data[1])
         message.edit_caption(caption=msg, parse_mode=ParseMode.HTML, reply_markup=InlineKeyboardMarkup(btns))
-
+    query.answer()
 
 def character(update: Update, _):
     message = update.effective_message
