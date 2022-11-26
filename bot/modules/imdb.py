@@ -214,16 +214,16 @@ def imdb_callback(update, context):
             )
         else:
             cap = "No Results"
-        deleteMessage(context.bot, update.message)
+        query.message.delete()
         if imdb.get('poster'):
             try:
-                sendPhoto(cap, context.bot, update.message, imdb['poster'], buttons.build_menu(1))
+                sendPhoto(cap, context.bot, query.message, imdb['poster'], buttons.build_menu(1))
             except TelegramError:
                 poster = imdb.get('poster').replace('.jpg', "._V1_UX360.jpg")
-                sendPhoto(cap, context.bot, update.message, poster, buttons.build_menu(1))
+                sendPhoto(cap, context.bot, query.message, poster, buttons.build_menu(1))
             except Exception as e:
                 LOGGER.exception(e)
-                sendMarkup(cap, context.bot, update.message, buttons.build_menu(1))
+                sendMarkup(cap, context.bot, query.message, buttons.build_menu(1))
         else:
             sendPhoto(cap, context.bot, update.message, 'https://telegra.ph/file/5af8d90a479b0d11df298.jpg', buttons.build_menu(1))
     else:
